@@ -7,13 +7,27 @@ on:
 jobs:
   build_and_push_latest:
     runs-on: ubuntu-latest
-    env:
-      GROCY_IMAGE_TAG: ${{ github.event.release.tag_name }}
     steps:
     - uses: actions/checkout@v2
-    - uses: docker/login-action@v1
+    # Enable Ubuntu development (impish) repository packages, to ensure that a recent version of 'buildah' is available
+    - run: echo "deb http://archive.ubuntu.com/ubuntu/ impish main universe" | sudo tee -a /etc/apt/sources.list
+    - run: echo "deb http://archive.ubuntu.com/ubuntu/ impish-security main universe" | sudo tee -a /etc/apt/sources.list
+    - run: sudo apt-get update
+    - run: sudo apt-get install -y buildah qemu-user-static
+    - uses: redhat-actions/buildah-build@v2
+      id: build-image
       with:
+        image: grocy/backend-arm64
+        tags: ${{ github.event.release.tag_name }}
+        arch: arm64
+        dockerfiles: Dockerfile-grocy-backend
+        build-args: |
+          GROCY_VERSION=v3.0.1
+          PLATFORM=linux/arm64/v8
+    - uses: redhat-actions/push-to-registry@v2
+      with:
+        image: ${{ steps.build-image.outputs.image }}
+        tags: ${{ steps.build-image.outputs.tags }}
+        registry: docker.io
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
-    - run: docker-compose build
-    - run: docker-compose push

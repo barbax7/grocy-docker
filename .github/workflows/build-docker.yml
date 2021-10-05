@@ -22,7 +22,7 @@ jobs:
         arch: arm64
         dockerfiles: Dockerfile-grocy-backend
         build-args: |
-          GROCY_VERSION=v3.0.1
+          GROCY_VERSION=v3.1.2
           PLATFORM=linux/arm64/v8
     - uses: redhat-actions/push-to-registry@v2
       with:

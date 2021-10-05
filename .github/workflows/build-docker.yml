@@ -24,6 +24,8 @@ jobs:
         build-args: |
           GROCY_VERSION=v3.1.2
           PLATFORM=linux/arm64/v8
+          COMPOSER_VERSION=2.1.5
+          COMPOSER_CHECKSUM=be95557cc36eeb82da0f4340a469bad56b57f742d2891892dcb2f8b0179790ec
     - uses: redhat-actions/push-to-registry@v2
       with:
         image: ${{ steps.build-image.outputs.image }}
